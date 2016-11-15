@@ -1,27 +1,38 @@
 # -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/7"
 
-  config.vm.define :proxy01 do |c|
-    c.vm.hostname = "wdp4.com"
-    c.vm.network "private_network", ip: "192.168.50.11"
-#    c.vm.synced_folder "../data", "/vagrant_data"
+  nodes = [
+    { name: 'proxy01', ip: '192.168.50.11' },
+    { name: 'proxy02', ip: '192.168.50.12' },
+    { name: 'app01', ip: '192.168.50.21' },
+    { name: 'app02', ip: '192.168.50.22' },
+    { name: 'db01', ip: '192.168.50.31' },
+  ]
 
-    c.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
-      vb.cpus = "1"
-    end
+  roles = [
+    { name: 'proxy', cpu: 1, memory: 256  },
+    { name: 'app',   cpu: 2, memory: 512  },
+    { name: 'db',    cpu: 2, memory: 1024 },
+  ]
 
-    c.vm.provision :itamae do |itamae|
-      itamae.sudo = true
-      itamae.recipes = ['./cookbooks/mysql/default.rb']
+  nodes.each do |n|
+    config.vm.define n[:name] do |c|
+      c.vm.network :private_network, ip: n[:ip]
+      c.vm.hostname = n[:name]
+      config.vm.synced_folder "html/", "/vagrant/html", nfs: true
+
+      c.vm.provider :virtualbox do |vbox|
+        rp = roles.find { |r| r[:name] == n[:name].gsub(/[0-9]/, '') }
+        vbox.customize ["modifyvm", :id, "--memory", rp[:memory]]
+        vbox.customize ["modifyvm", :id, "--cpus", rp[:cpu]]
+
+#        c.vm.provision :itamae do |itamae|
+#          itamae.sudo = true
+#          itamae.recipes = ['./bootstrap.rb']
+#          itamae.json = "./nodes/development_#{rp[:name]}.json"
+#        end
+      end
     end
   end
-
 end

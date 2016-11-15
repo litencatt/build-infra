@@ -5,19 +5,6 @@ end
 
 package 'mysql-server'
 
-# MySQL権限設定
-execute 'mysql permission' do
-    command <<-EOL
-        chown mysql:mysql /var/log/mysqld.log
-        chown -R mysql:mysql /var/lib/mysql
-    EOL
-end
-
-# my.cnfのバックアップ
-execute 'my.cnf backup' do
-    command 'cp /etc/my.cnf /etc/my.cnf.org'
-end
-
 # MySQL起動、有効化
 service 'mysqld' do
     action [:start, :enable]
