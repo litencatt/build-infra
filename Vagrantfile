@@ -23,15 +23,15 @@ Vagrant.configure("2") do |config|
       config.vm.synced_folder "html/", "/vagrant/html", nfs: true
 
       c.vm.provider :virtualbox do |vbox|
-        rp = roles.find { |r| r[:name] == n[:name].gsub(/[0-9]/, '') }
-        vbox.customize ["modifyvm", :id, "--memory", rp[:memory]]
-        vbox.customize ["modifyvm", :id, "--cpus", rp[:cpu]]
+        role = roles.find { |r| r[:name] == n[:name].gsub(/[0-9]/, '') }
+        vbox.customize ["modifyvm", :id, "--memory", role[:memory]]
+        vbox.customize ["modifyvm", :id, "--cpus", role[:cpu]]
 
-#        c.vm.provision :itamae do |itamae|
-#          itamae.sudo = true
-#          itamae.recipes = ['./bootstrap.rb']
-#          itamae.json = "./nodes/development_#{rp[:name]}.json"
-#        end
+        c.vm.provision :itamae do |itamae|
+          itamae.sudo = true
+          itamae.recipes = ['./bootstrap.rb']
+          itamae.json = "./nodes/#{role[:name]}.json"
+        end
       end
     end
   end

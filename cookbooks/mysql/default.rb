@@ -4,6 +4,7 @@ package "http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm" do
 end
 
 package 'mysql-server'
+package 'mysql-devel'
 
 # MySQL起動、有効化
 service 'mysqld' do
